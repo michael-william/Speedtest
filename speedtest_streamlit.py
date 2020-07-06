@@ -61,7 +61,7 @@ def viz(df):
     hovermode='y')
 
     fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest', xaxis_title="Hour of day", yaxis_title="Value", xaxis_dtick=2)
+    fig.update_layout(hovermode='closest', xaxis_title="Hour of day",legend_orientation='h',legend=dict(x=.2 , y=1.2), yaxis_title="Value", xaxis_dtick=2)
     
     return fig
 
@@ -107,7 +107,7 @@ def violin(df):
    # hovermode='y')
 
     #fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest', yaxis_title="Measures")
+    fig.update_layout(hovermode='closest', yaxis_title="Measures",showlegend=False)
     
     return fig
     
