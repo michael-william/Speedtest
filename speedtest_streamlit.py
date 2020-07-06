@@ -20,7 +20,7 @@ maximum download speed of 500 mbs.
 
 def load_data(allow_output_mutation=True):
     
-    data_source = r'/Users/michaelcondon/Documents/GitHub/Speedtest/speedtest_logs.csv'
+    data_source = 'https://github.com/michael-william/Speedtest/raw/master/speedtest_logs.csv'
     raw_data=pd.read_csv(data_source, parse_dates=[3,4])
     raw_data.rename(columns={'time':'hour'}, inplace=True)
     raw_data['hour'] = raw_data.hour.dt.round('H').dt.hour
@@ -112,10 +112,10 @@ def user_input_features():
         tomorrow = today + datetime.timedelta(days=1)
         start_date = st.sidebar.date_input('Start date', datetime.date(2020,7,4))
         end_date = st.sidebar.date_input('End date', tomorrow)
-        if start_date < end_date:
+        if start_date <= end_date:
             st.sidebar.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
         else:
-            st.sidebar.error('Error: End date must fall after start date.')
+            st.sidebar.error('Error: End date must fall after or on start date.')
         #st.sidebar.text('City: '+(location.raw['display_name'].split(',')[3]))
         #st.sidebar.text('Longitude: '+str(longitude))
         #st.sidebar.text('Latitude: '+str(latitude))
