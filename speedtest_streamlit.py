@@ -60,7 +60,7 @@ def viz(df):
     hovermode='y')
 
     fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest')
+    fig.update_layout(hovermode='closest', xaxis_title="Hour of day", yaxis_title="Value")
     
     return fig
 
@@ -102,7 +102,7 @@ def violin(df):
     hovermode='y')
 
     fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest')
+    fig.update_layout(hovermode='closest', xaxis_title="Feature", yaxis_title="Measures")
     
     return fig
     
@@ -142,7 +142,7 @@ def main():
     st.write(date_range)
     st.plotly_chart(fig, use_container_width=True)
     st.plotly_chart(figv, use_container_width=True)
-    st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['ping', 'download', 'upload', 'hour']])
+    st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
     
 
     #def user_update():
