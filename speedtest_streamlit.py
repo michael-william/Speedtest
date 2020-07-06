@@ -6,6 +6,7 @@ import streamlit as st
 
 # ML libraries
 import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 import plotly.io as pio
 import plotly.offline as pyo
 pio.renderers.default = 'iframe'
@@ -60,49 +61,53 @@ def viz(df):
     hovermode='y')
 
     fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest', xaxis_title="Hour of day", yaxis_title="Value")
+    fig.update_layout(hovermode='closest', xaxis_title="Hour of day", yaxis_title="Value", xaxis_dtick=2)
     
     return fig
 
 @st.cache(allow_output_mutation=True)
 def violin(df):
+    fig = make_subplots(rows=1, cols=3)
 
-    ping = go.Violin(
-    y=df['ping'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Ping(ms)',
-    box_visible=True,
-    points='all', 
-    meanline_visible=True)
-
-    down = go.Violin(
+    fig.add_trace( go.Violin(
     y=df['download'],
     opacity = 0.75,
     hoverinfo="name + y",
     name='Download (mbs)',
     box_visible=True,
     points='all',
-    meanline_visible=True)
+    meanline_visible=True),
+    row=1, col=1)
 
-    up = go.Violin(
+    fig.add_trace( go.Violin(
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name+y",
     name = 'Upload (mbs)',
     box_visible=True,
     points='all', 
-    meanline_visible=True)
+    meanline_visible=True),
+    row=1, col=2)
 
-    data = [down, up, ping]
+    fig.add_trace( go.Violin(
+    y=df['ping'],
+    opacity = 0.75,
+    hoverinfo="name + y",
+    name='Ping(ms)',
+    box_visible=True,
+    points='all', 
+    meanline_visible=True),
+    row=1,col=3)
 
-    layout = go.Layout(
-    title='Range',
-    barmode='overlay', 
-    hovermode='y')
+    #data = [down, up, ping]
 
-    fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest', xaxis_title="Feature", yaxis_title="Measures")
+#    layout = go.Layout(
+ #   title='Range',
+  #  barmode='overlay', 
+   # hovermode='y')
+
+    #fig = go.Figure(data=data, layout=layout)
+    fig.update_layout(hovermode='closest', yaxis_title="Measures")
     
     return fig
     
@@ -112,9 +117,7 @@ def user_input_features():
         tomorrow = today + datetime.timedelta(days=1)
         start_date = st.sidebar.date_input('Start date', datetime.date(2020,7,4))
         end_date = st.sidebar.date_input('End date', tomorrow)
-        if start_date <= end_date:
-            st.sidebar.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
-        else:
+        if start_date > end_date:
             st.sidebar.error('Error: End date must fall after or on start date.')
         #st.sidebar.text('City: '+(location.raw['display_name'].split(',')[3]))
         #st.sidebar.text('Longitude: '+str(longitude))
@@ -139,7 +142,7 @@ def main():
     figv = violin(df)
 
     st.subheader('Date Range')
-    st.write(date_range)
+    st.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
     st.plotly_chart(fig, use_container_width=True)
     st.plotly_chart(figv, use_container_width=True)
     st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
