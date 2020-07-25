@@ -180,7 +180,7 @@ def main():
     st.plotly_chart(figv, use_container_width=True)
     st.subheader('Wifi stats from the 500 mbs plan')
     st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
-    st.subheader('Wifi stats from the 2500 mbs plan')
+    st.subheader('Wifi stats from the 250 mbs plan')
     st.write(stats2.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
     
 
