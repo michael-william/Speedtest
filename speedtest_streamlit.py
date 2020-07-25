@@ -14,7 +14,7 @@ pio.renderers.default = 'iframe'
 st.write("""
 # Hourly Wifi Speeds 
 Measuring my wifi performance throughout the day. Data collection started on July 4th, 2020 with a subscription
-plan for 500mbs at 2.4Ghz. On July 24th, the plan was switched to 250mbs at 5Ghz.
+plan for 500mbs download at 2.4Ghz. On July 24th, the plan was switched to 250mbs download at 5Ghz.
 """)
 
 @st.cache
@@ -31,43 +31,84 @@ def load_data(allow_output_mutation=True):
 
 
 @st.cache(allow_output_mutation=True)
-def viz(df):
-    ping = go.Bar(
-    x=df['hour'],
-    y=df['ping'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Ping(ms)')
+def viz(df,df2):
+    fig = make_subplots(rows=3, cols=1,
+          vertical_spacing=0.15,
+          subplot_titles=("Download(mbs)", 
+                          "Upload(mbs)", "Ping(ms)"))
 
-    down = go.Bar(
+    fig.add_trace(go.Bar(
     x=df['hour'],
     y=df['download'],
     opacity = 0.75,
     hoverinfo="name + y",
-    name='Download (mbs)')
+    marker_color = '#838EF9',
+    name='Download 500 plan'),
+    row=1,col=1)
 
-    up = go.Bar(
+    fig.add_trace(go.Bar(
+    x=df2['hour'],
+    y=df2['download'],
+    opacity = 0.75,
+    hoverinfo="name + y",
+    marker_color = '#3B43A7',
+    name='Download 250 plan'),
+    row=1,col=1)
+
+    fig.add_trace(go.Bar(
     x=df['hour'],
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name + y",
-    name = 'Upload (mbs)')
+    marker_color = '#4AD3AF',
+    name = 'Upload 500 plan'),
+    row=2,col=1)
 
-    data = [down, up, ping]
+    fig.add_trace(go.Bar(
+    x=df2['hour'],
+    y=df2['upload'],
+    opacity = 0.75,
+    hoverinfo="name + y",
+    marker_color = '#34733B',
+    name = 'Upload 250 plan'),
+    row=2,col=1)
 
-    layout = go.Layout(
-    title='Overal WiFi Performance',
-    barmode='overlay', 
-    hovermode='y')
+    fig.add_trace(go.Bar(
+    x=df['hour'],
+    y=df['ping'],
+    opacity = 0.75,
+    hoverinfo="name + y",
+    marker_color = '#F7B281',
+    name='Ping 500 plan'),
+    row=3, col=1)
 
-    fig = go.Figure(data=data, layout=layout)
-    fig.update_layout(hovermode='closest', xaxis_title="Hour of day",legend_orientation='h',legend=dict(x=.2 , y=1.2), yaxis_title="Value", xaxis_dtick=2)
+    fig.add_trace(go.Bar(
+    x=df2['hour'],
+    y=df2['ping'],
+    opacity = 0.75,
+    hoverinfo="name + y",
+    marker_color = '#F8A451',
+    name='Ping 250 plan'),
+    row=3, col=1)
+
+    #data = [down, up, ping]
+
+    #layout = go.Layout(
+    #title='Overal WiFi Performance',
+    #barmode='overlay', 
+    #hovermode='y')
+
+    #fig = go.Figure(data=data, layout=layout)
+    fig.update_xaxes(title = 'Hour of day',range=[-1, 23.5], dtick=2, title_font=dict(size=12))
+    fig.update_yaxes(title = 'Value')
+    fig.update_layout(title='Wifi Hourly Performance',barmode='overlay',hovermode='closest', height=800, legend_orientation='v')
     
     return fig
 
 @st.cache(allow_output_mutation=True)
 def violin(df,df2):
-    fig = make_subplots(rows=1, cols=3)
+    fig = make_subplots(rows=1, cols=3,
+                        subplot_titles=("Download(mbs)", "Upload(mbs)", "Ping(ms)"))
 
     fig.add_trace( go.Violin(
     y=df['download'],
@@ -132,7 +173,7 @@ def violin(df,df2):
     meanline_visible=True),
     row=1,col=3)
 
-    fig.update_layout(hovermode='closest', yaxis_title="Measures",showlegend=True)
+    fig.update_layout(title = 'Distribution of Performance', hovermode='closest', yaxis_title="Measures",showlegend=True)
     
     return fig
     
@@ -171,7 +212,7 @@ def main():
     df2 = df_base.iloc[switch_date:]
     stats = pd.DataFrame(df.describe()).round(decimals=2)
     stats2 = pd.DataFrame(df2.describe()).round(decimals=2)
-    fig = viz(df)
+    fig = viz(df,df2)
     figv = violin(df,df2)
 
     st.subheader('Selected Date Range')
