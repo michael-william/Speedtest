@@ -13,8 +13,8 @@ pio.renderers.default = 'iframe'
 
 st.write("""
 # Hourly Wifi Speeds 
-Measuring my wifi performance throughout the day. Data collection started on July 4th, 2020 with a subscription
-plan for 500mbs at 2.4Ghz. On July 24th, the plan was switched to 250mbs at 5Ghz.
+Measuring my wifi performance throughout the day. My plan says I should have a 
+maximum download speed of 500 mbs.
 """)
 
 @st.cache
@@ -56,7 +56,7 @@ def viz(df):
     data = [down, up, ping]
 
     layout = go.Layout(
-    title='Overal WiFi Performance',
+    title='WiFi Stats',
     barmode='overlay', 
     hovermode='y')
 
@@ -66,27 +66,16 @@ def viz(df):
     return fig
 
 @st.cache(allow_output_mutation=True)
-def violin(df,df2):
+def violin(df):
     fig = make_subplots(rows=1, cols=3)
 
     fig.add_trace( go.Violin(
     y=df['download'],
     opacity = 0.75,
     hoverinfo="name + y",
-    name='Down 500 plan',
+    name='Download (mbs)',
     box_visible=True,
     points='all',
-    meanline_visible=True),
-    row=1, col=1)
-    
-    fig.add_trace( go.Violin(
-    y=df2['download'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Down 250 plan',
-    box_visible=True,
-    points='all',
-    marker_color='darkblue',
     meanline_visible=True),
     row=1, col=1)
 
@@ -94,20 +83,9 @@ def violin(df,df2):
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name+y",
-    name = 'Up 500 plan',
+    name = 'Upload (mbs)',
     box_visible=True,
     points='all', 
-    meanline_visible=True),
-    row=1, col=2)
-    
-    fig.add_trace( go.Violin(
-    y=df2['upload'],
-    opacity = 0.75,
-    hoverinfo="name+y",
-    name = 'Up 250 plan',
-    box_visible=True,
-    points='all', 
-    marker_color='darkgreen',
     meanline_visible=True),
     row=1, col=2)
 
@@ -115,24 +93,21 @@ def violin(df,df2):
     y=df['ping'],
     opacity = 0.75,
     hoverinfo="name + y",
-    name='Ping 500 plan',
+    name='Ping(ms)',
     box_visible=True,
     points='all', 
     meanline_visible=True),
     row=1,col=3)
-    
-    fig.add_trace( go.Violin(
-    y=df2['ping'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Ping 250 plan',
-    box_visible=True,
-    points='all',
-    marker_color='darkorange',
-    meanline_visible=True),
-    row=1,col=3)
 
-    fig.update_layout(hovermode='closest', yaxis_title="Measures",showlegend=True)
+    #data = [down, up, ping]
+
+#    layout = go.Layout(
+ #   title='Range',
+  #  barmode='overlay', 
+   # hovermode='y')
+
+    #fig = go.Figure(data=data, layout=layout)
+    fig.update_layout(hovermode='closest', yaxis_title="Measures",showlegend=False)
     
     return fig
     
@@ -144,10 +119,6 @@ def user_input_features():
         end_date = st.sidebar.date_input('End date', tomorrow)
         if start_date > end_date:
             st.sidebar.error('Error: End date must fall after or on start date.')
-        if start_date > datetime.date(2020,7,23):
-            st.sidebar.error('Error: Start must be less than 2020-7-24.')
-        if end_date < datetime.date(2020,7,24):
-            st.sidebar.error('Error: End must be greater than 2020-7-23.')
         #st.sidebar.text('City: '+(location.raw['display_name'].split(',')[3]))
         #st.sidebar.text('Longitude: '+str(longitude))
         #st.sidebar.text('Latitude: '+str(latitude))
@@ -165,23 +136,16 @@ def main():
     date_range = user_input_features()
     start_date = date_range['Start date'][0]
     end_date = date_range['End date'][0]
-    df_base = int_data.query('date >= @start_date and date <= @end_date')
-    switch_date = df_base.query('date == "2020-07-23" and hour == 17').index[0]
-    df = df_base.iloc[:switch_date]
-    df2 = df_base.iloc[switch_date:]
+    df = int_data.query('date >= @start_date and date <= @end_date')
     stats = pd.DataFrame(df.describe()).round(decimals=2)
-    stats2 = pd.DataFrame(df2.describe()).round(decimals=2)
     fig = viz(df)
-    figv = violin(df,df2)
+    figv = violin(df)
 
-    st.subheader('Selected Date Range')
+    st.subheader('Date Range')
     st.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
     st.plotly_chart(fig, use_container_width=True)
     st.plotly_chart(figv, use_container_width=True)
-    st.subheader('Wifi stats from the 500 mbs plan')
     st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
-    st.subheader('Wifi stats from the 2500 mbs plan')
-    st.write(stats2.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
     
 
     #def user_update():
@@ -195,3 +159,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
