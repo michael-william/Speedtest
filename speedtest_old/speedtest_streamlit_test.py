@@ -14,7 +14,8 @@ pio.renderers.default = 'iframe'
 st.write("""
 # Hourly Wifi Speeds 
 Measuring my wifi performance throughout the day. Data collection started on July 4th, 2020 with a subscription
-plan for 500mbs download at 2.4Ghz. On July 24th, the plan was switched to 250mbs download at 5Ghz.
+plan for 500mbs download at 2.4Ghz. On July 24th, the plan was switched to 250mbs download at 5Ghz. on August 11th,
+I added a TP mesh system to the 250 mbs plan.
 """)
 
 @st.cache
@@ -60,7 +61,7 @@ def viz(df,df2, df3):
     y=df3['download'],
     opacity = 0.75,
     hoverinfo="name + y",
-    marker_color = '#3B43A7',
+    marker_color = '#42b3f5',
     name='Download 250 TP'),
     row=1,col=1)
 
@@ -69,7 +70,7 @@ def viz(df,df2, df3):
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name + y",
-    marker_color = '#4AD3AF',
+    marker_color = '#45f542',
     name = 'Upload 500 plan'),
     row=2,col=1)
 
@@ -87,7 +88,7 @@ def viz(df,df2, df3):
     y=df3['upload'],
     opacity = 0.75,
     hoverinfo="name + y",
-    marker_color = '#34733B',
+    marker_color = '#42f5c5',
     name = 'Upload 250 TP'),
     row=2,col=1)
 
@@ -114,7 +115,7 @@ def viz(df,df2, df3):
     y=df3['ping'],
     opacity = 0.75,
     hoverinfo="name + y",
-    marker_color = '#F8A451',
+    marker_color = '#ff7d97',
     name='Ping 250 TP'),
     row=3, col=1)
 
@@ -134,7 +135,7 @@ def viz(df,df2, df3):
 
 @st.cache(allow_output_mutation=True)
 def violin(df,df2, df3):
-    fig = make_subplots(rows=1, cols=3,
+    fig = make_subplots(rows=3, cols=1,
                         subplot_titles=("Download(mbs)", "Upload(mbs)", "Ping(ms)"))
 
     fig.add_trace( go.Violin(
@@ -165,7 +166,7 @@ def violin(df,df2, df3):
     name='Down 250 TP',
     box_visible=True,
     points='all',
-    marker_color='darkblue',
+    marker_color='#42b3f5',
     meanline_visible=True),
     row=1, col=1)
 
@@ -176,8 +177,9 @@ def violin(df,df2, df3):
     name = 'Up 500 plan',
     box_visible=True,
     points='all', 
+    marker_color = '#45f542',
     meanline_visible=True),
-    row=1, col=2)
+    row=2, col=1)
     
     fig.add_trace( go.Violin(
     y=df2['upload'],
@@ -188,7 +190,7 @@ def violin(df,df2, df3):
     points='all', 
     marker_color='darkgreen',
     meanline_visible=True),
-    row=1, col=2)
+    row=2, col=1)
 
     fig.add_trace( go.Violin(
     y=df3['upload'],
@@ -197,9 +199,9 @@ def violin(df,df2, df3):
     name = 'Up 250 TP',
     box_visible=True,
     points='all', 
-    marker_color='darkgreen',
+    marker_color='#42f5c5',
     meanline_visible=True),
-    row=1, col=2)
+    row=2, col=1)
 
     fig.add_trace( go.Violin(
     y=df['ping'],
@@ -208,8 +210,9 @@ def violin(df,df2, df3):
     name='Ping 500 plan',
     box_visible=True,
     points='all', 
+    marker_color='#f58442',
     meanline_visible=True),
-    row=1,col=3)
+    row=3,col=1)
     
     fig.add_trace( go.Violin(
     y=df2['ping'],
@@ -220,7 +223,7 @@ def violin(df,df2, df3):
     points='all',
     marker_color='darkorange',
     meanline_visible=True),
-    row=1,col=3)
+    row=3,col=1)
 
     fig.add_trace( go.Violin(
     y=df3['ping'],
@@ -229,11 +232,15 @@ def violin(df,df2, df3):
     name='Ping 250 TP',
     box_visible=True,
     points='all',
-    marker_color='darkorange',
+    marker_color='#ff7d97',
     meanline_visible=True),
-    row=1,col=3)
+    row=3,col=1)
 
-    fig.update_layout(title = 'Distribution of Performance', hovermode='closest', yaxis_title="Measures",showlegend=True)
+    fig.update_layout(title = 'Distribution of Performance', hovermode='closest', 
+                    yaxis_title="Measures",showlegend=True,
+                    autosize=False,
+                    width=500,
+                    height=800)
     
     return fig
     
@@ -271,7 +278,7 @@ def main():
     switch_date_2 = df_base.query('date == "2020-08-11" and hour == 14').index[0]
     df = df_base.iloc[:switch_date]
     df2 = df_base.iloc[switch_date:]
-    df2 = df_base.iloc[switch_date_2:]
+    df3 = df_base.iloc[switch_date_2:]
     stats = pd.DataFrame(df.describe()).round(decimals=2)
     stats2 = pd.DataFrame(df2.describe()).round(decimals=2)
     stats3 = pd.DataFrame(df3.describe()).round(decimals=2)

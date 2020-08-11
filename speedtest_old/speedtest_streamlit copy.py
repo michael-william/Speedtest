@@ -14,8 +14,7 @@ pio.renderers.default = 'iframe'
 st.write("""
 # Hourly Wifi Speeds 
 Measuring my wifi performance throughout the day. Data collection started on July 4th, 2020 with a subscription
-plan for 500mbs download at 2.4Ghz. On July 24th, the plan was switched to 250mbs download at 5Ghz. on August 11th,
-I added a TP mesh system to the 250 mbs plan.
+plan for 500mbs download at 2.4Ghz. On July 24th, the plan was switched to 250mbs download at 5Ghz.
 """)
 
 @st.cache
@@ -32,7 +31,7 @@ def load_data(allow_output_mutation=True):
 
 
 @st.cache(allow_output_mutation=True)
-def viz(df,df2, df3):
+def viz(df,df2):
     fig = make_subplots(rows=3, cols=1,
           vertical_spacing=0.15,
           subplot_titles=("Download(mbs)", 
@@ -57,20 +56,11 @@ def viz(df,df2, df3):
     row=1,col=1)
 
     fig.add_trace(go.Bar(
-    x=df3['hour'],
-    y=df3['download'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    marker_color = '#42b3f5',
-    name='Download 250 TP'),
-    row=1,col=1)
-
-    fig.add_trace(go.Bar(
     x=df['hour'],
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name + y",
-    marker_color = '#45f542',
+    marker_color = '#4AD3AF',
     name = 'Upload 500 plan'),
     row=2,col=1)
 
@@ -81,15 +71,6 @@ def viz(df,df2, df3):
     hoverinfo="name + y",
     marker_color = '#34733B',
     name = 'Upload 250 plan'),
-    row=2,col=1)
-
-    fig.add_trace(go.Bar(
-    x=df3['hour'],
-    y=df3['upload'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    marker_color = '#42f5c5',
-    name = 'Upload 250 TP'),
     row=2,col=1)
 
     fig.add_trace(go.Bar(
@@ -110,15 +91,6 @@ def viz(df,df2, df3):
     name='Ping 250 plan'),
     row=3, col=1)
 
-    fig.add_trace(go.Bar(
-    x=df3['hour'],
-    y=df3['ping'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    marker_color = '#ff7d97',
-    name='Ping 250 TP'),
-    row=3, col=1)
-
     #data = [down, up, ping]
 
     #layout = go.Layout(
@@ -134,8 +106,8 @@ def viz(df,df2, df3):
     return fig
 
 @st.cache(allow_output_mutation=True)
-def violin(df,df2, df3):
-    fig = make_subplots(rows=3, cols=1,
+def violin(df,df2):
+    fig = make_subplots(rows=1, cols=3,
                         subplot_titles=("Download(mbs)", "Upload(mbs)", "Ping(ms)"))
 
     fig.add_trace( go.Violin(
@@ -160,26 +132,14 @@ def violin(df,df2, df3):
     row=1, col=1)
 
     fig.add_trace( go.Violin(
-    y=df3['download'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Down 250 TP',
-    box_visible=True,
-    points='all',
-    marker_color='#42b3f5',
-    meanline_visible=True),
-    row=1, col=1)
-
-    fig.add_trace( go.Violin(
     y=df['upload'],
     opacity = 0.75,
     hoverinfo="name+y",
     name = 'Up 500 plan',
     box_visible=True,
     points='all', 
-    marker_color = '#45f542',
     meanline_visible=True),
-    row=2, col=1)
+    row=1, col=2)
     
     fig.add_trace( go.Violin(
     y=df2['upload'],
@@ -190,18 +150,7 @@ def violin(df,df2, df3):
     points='all', 
     marker_color='darkgreen',
     meanline_visible=True),
-    row=2, col=1)
-
-    fig.add_trace( go.Violin(
-    y=df3['upload'],
-    opacity = 0.75,
-    hoverinfo="name+y",
-    name = 'Up 250 TP',
-    box_visible=True,
-    points='all', 
-    marker_color='#42f5c5',
-    meanline_visible=True),
-    row=2, col=1)
+    row=1, col=2)
 
     fig.add_trace( go.Violin(
     y=df['ping'],
@@ -210,9 +159,8 @@ def violin(df,df2, df3):
     name='Ping 500 plan',
     box_visible=True,
     points='all', 
-    marker_color='#f58442',
     meanline_visible=True),
-    row=3,col=1)
+    row=1,col=3)
     
     fig.add_trace( go.Violin(
     y=df2['ping'],
@@ -223,24 +171,9 @@ def violin(df,df2, df3):
     points='all',
     marker_color='darkorange',
     meanline_visible=True),
-    row=3,col=1)
+    row=1,col=3)
 
-    fig.add_trace( go.Violin(
-    y=df3['ping'],
-    opacity = 0.75,
-    hoverinfo="name + y",
-    name='Ping 250 TP',
-    box_visible=True,
-    points='all',
-    marker_color='#ff7d97',
-    meanline_visible=True),
-    row=3,col=1)
-
-    fig.update_layout(title = 'Distribution of Performance', hovermode='closest', 
-                    yaxis_title="Measures",showlegend=True,
-                    autosize=False,
-                    width=500,
-                    height=800)
+    fig.update_layout(title = 'Distribution of Performance', hovermode='closest', yaxis_title="Measures",showlegend=True)
     
     return fig
     
@@ -275,15 +208,12 @@ def main():
     end_date = date_range['End date'][0]
     df_base = int_data.query('date >= @start_date and date <= @end_date')
     switch_date = df_base.query('date == "2020-07-23" and hour == 17').index[0]
-    switch_date_2 = df_base.query('date == "2020-08-11" and hour == 14').index[0]
     df = df_base.iloc[:switch_date]
     df2 = df_base.iloc[switch_date:]
-    df3 = df_base.iloc[switch_date_2:]
     stats = pd.DataFrame(df.describe()).round(decimals=2)
     stats2 = pd.DataFrame(df2.describe()).round(decimals=2)
-    stats3 = pd.DataFrame(df3.describe()).round(decimals=2)
-    fig = viz(df,df2,df3)
-    figv = violin(df,df2,df3)
+    fig = viz(df,df2)
+    figv = violin(df,df2)
 
     st.subheader('Selected Date Range')
     st.success('Start date: `%s`\n\nEnd date:`%s`' % (start_date, end_date))
@@ -293,8 +223,6 @@ def main():
     st.write(stats.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
     st.subheader('Wifi stats from the 250 mbs plan')
     st.write(stats2.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
-    st.subheader('Wifi stats from the 250 TP Mesh')
-    st.write(stats3.loc[['count', 'mean', 'max', 'min', 'std']][['download', 'upload','ping','hour']])
     
 
     #def user_update():
